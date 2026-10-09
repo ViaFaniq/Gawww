@@ -5,4 +5,4 @@ A graphical frontend for [awww](https://codeberg.org/LGFae/awww) written in Qt.
 
 - Python 3
 - awww
-- QT6
+- Pyside6
