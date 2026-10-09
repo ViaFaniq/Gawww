@@ -60,11 +60,6 @@ class AwwwGui(QWidget):
         self.duration.setValue(700)
         options.addWidget(self.duration)
 
-        options.addWidget(QLabel("Direction:"))
-        self.direction = QComboBox()
-        self.direction.addItems(["left", "right", "top", "bottom"])
-        options.addWidget(self.direction)
-
         layout.addLayout(options)
 
         self.no_cache = QCheckBox("Disable cache (--no-cache)")
@@ -116,8 +111,6 @@ class AwwwGui(QWidget):
             "90",
             "--transition-fps",
             "60",
-            "--transition-direction",
-            self.direction.currentText(),
         ]
 
         output = self.output.text().strip()
