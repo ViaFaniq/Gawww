@@ -56,9 +56,9 @@ cargo tauri build --bundles appimage
 Outputs:
 
 - `src-tauri/target/release/gawww` — plain release binary
-- `src-tauri/target/release/bundle/appimage/GAWWW_0.1.0_amd64.AppImage` — portable AppImage
+- `src-tauri/target/release/bundle/appimage/GAWWW_*_amd64.AppImage` — portable AppImage
 
-The AppImage normally executes with FUSE (`libfuse2`). On systems without it, run `./GAWWW_0.1.0_amd64.AppImage --appimage-extract-and-run`.
+The AppImage normally executes with FUSE (`libfuse2`). On systems without it, run `./GAWWW_*_amd64.AppImage --appimage-extract-and-run`.
 
 ## Usage
 

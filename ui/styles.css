@@ -866,15 +866,111 @@ kbd {
   display: block;
 }
 
-.select-wrap::after {
-  content: "▼";
+.native-select-hidden {
   position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.select-trigger {
+  width: 100%;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12px;
+  text-align: left;
+}
+
+.select-trigger:hover:not(:disabled),
+.select-trigger.is-open {
+  border-color: var(--accent-dim);
+}
+
+.select-trigger:focus-visible {
+  outline: 1px dashed var(--accent);
+  outline-offset: 1px;
+}
+
+.select-trigger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.select-trigger-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.select-trigger-caret {
+  flex: none;
   font-size: 9px;
   color: var(--muted);
-  pointer-events: none;
+}
+
+.select-trigger.is-open .select-trigger-caret {
+  color: var(--accent);
+}
+
+.select-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 2px);
+  z-index: 40;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--accent-dim);
+  background: #060b08;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
+}
+
+.select-group {
+  padding: 6px 8px 3px;
+  font-size: 10.5px;
+  color: var(--muted);
+  border-bottom: 1px dashed var(--line);
+}
+
+.select-group::before {
+  content: "## ";
+  color: var(--line-strong);
+}
+
+.select-option {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  border-left: 2px solid transparent;
+  color: var(--muted-strong);
+  font-size: 12px;
+  text-align: left;
+}
+
+.select-option:hover,
+.select-option:focus {
+  outline: none;
+  background: rgba(90, 247, 142, 0.08);
+  color: var(--text);
+}
+
+.select-option.is-selected {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: rgba(90, 247, 142, 0.05);
+}
+
+.select-option.is-selected::before {
+  content: "> ";
+  color: var(--accent);
 }
 
 select {

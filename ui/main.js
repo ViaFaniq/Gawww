@@ -281,6 +281,170 @@
     input.style.setProperty("--fill", `${percentage}%`);
   }
 
+  const selectWidgets = new Map();
+
+  function syncSelectWidget(select) {
+    const widget = selectWidgets.get(select);
+    if (!widget) return;
+
+    const selected = select.selectedOptions[0];
+    widget.label.textContent = selected ? selected.textContent : "";
+    widget.trigger.disabled = select.disabled;
+    if (select.disabled) widget.close();
+
+    for (const item of widget.items) {
+      const isSelected = item.dataset.value === select.value;
+      item.classList.toggle("is-selected", isSelected);
+      item.setAttribute("aria-selected", String(isSelected));
+    }
+  }
+
+  function syncAllSelectWidgets() {
+    for (const select of selectWidgets.keys()) syncSelectWidget(select);
+  }
+
+  function closeSelectMenus(except = null) {
+    for (const widget of selectWidgets.values()) {
+      if (widget !== except) widget.close();
+    }
+  }
+
+  function enhanceSelect(select) {
+    const wrap = select.closest(".select-wrap");
+    if (!wrap) return;
+
+    select.classList.add("native-select-hidden");
+    select.tabIndex = -1;
+
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "select-trigger";
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+
+    const label = document.createElement("span");
+    label.className = "select-trigger-label";
+
+    const caret = document.createElement("span");
+    caret.className = "select-trigger-caret";
+    caret.textContent = "▼";
+    caret.setAttribute("aria-hidden", "true");
+
+    trigger.append(label, caret);
+
+    const menu = document.createElement("div");
+    menu.className = "select-menu";
+    menu.setAttribute("role", "listbox");
+    menu.hidden = true;
+
+    const items = [];
+
+    const makeItem = (option) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "select-option";
+      item.setAttribute("role", "option");
+      item.dataset.value = option.value;
+      item.textContent = option.textContent;
+      item.tabIndex = -1;
+      item.addEventListener("click", () => {
+        select.value = option.value;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+        syncSelectWidget(select);
+        widget.close();
+        trigger.focus();
+      });
+      items.push(item);
+      return item;
+    };
+
+    for (const child of select.children) {
+      if (child.tagName === "OPTGROUP") {
+        const group = document.createElement("div");
+        group.className = "select-group";
+        group.textContent = child.label;
+        menu.append(group);
+        for (const option of child.children) menu.append(makeItem(option));
+      } else if (child.tagName === "OPTION") {
+        menu.append(makeItem(child));
+      }
+    }
+
+    const widget = {
+      trigger,
+      menu,
+      label,
+      items,
+      open() {
+        if (select.disabled || !menu.hidden) return;
+        closeSelectMenus(widget);
+        menu.hidden = false;
+        trigger.classList.add("is-open");
+        trigger.setAttribute("aria-expanded", "true");
+        const selected = items.find((item) => item.dataset.value === select.value);
+        (selected || items[0])?.focus();
+      },
+      close() {
+        menu.hidden = true;
+        trigger.classList.remove("is-open");
+        trigger.setAttribute("aria-expanded", "false");
+      },
+    };
+
+    trigger.addEventListener("click", () => {
+      if (menu.hidden) widget.open();
+      else widget.close();
+    });
+
+    trigger.addEventListener("keydown", (event) => {
+      if (["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) {
+        event.preventDefault();
+        widget.open();
+      }
+    });
+
+    menu.addEventListener("keydown", (event) => {
+      const visible = items.filter((item) => !item.hidden);
+      const index = visible.indexOf(document.activeElement);
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        widget.close();
+        trigger.focus();
+      } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        const step = event.key === "ArrowDown" ? 1 : -1;
+        visible[(index + step + visible.length) % visible.length]?.focus();
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        visible[0]?.focus();
+      } else if (event.key === "End") {
+        event.preventDefault();
+        visible[visible.length - 1]?.focus();
+      } else if (event.key === "Tab") {
+        widget.close();
+      }
+    });
+
+    select.addEventListener("change", () => syncSelectWidget(select));
+
+    wrap.append(trigger, menu);
+    selectWidgets.set(select, widget);
+    syncSelectWidget(select);
+  }
+
+  function enhanceSelects() {
+    for (const select of document.querySelectorAll(".select-wrap > select")) enhanceSelect(select);
+
+    document.addEventListener("click", (event) => {
+      for (const widget of selectWidgets.values()) {
+        if (!widget.trigger.contains(event.target) && !widget.menu.contains(event.target)) {
+          widget.close();
+        }
+      }
+    });
+  }
+
   function showToast(message, type = "info", timeout = 4600) {
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
@@ -533,6 +697,7 @@
     const cropping = state.settings.resize === "crop";
     gravitySelect.disabled = !cropping;
     gravityField.style.opacity = cropping ? "" : "0.55";
+    syncSelectWidget(gravitySelect);
   }
 
   function applySettingsToUi() {
@@ -552,6 +717,7 @@
     paintRange(fpsRange);
     updateTransitionUi();
     updateGravityUi();
+    syncAllSelectWidgets();
   }
 
   function clearPreview() {
@@ -925,6 +1091,7 @@
     }
 
     bindEvents();
+    enhanceSelects();
     applySettingsToUi();
     renderRecent();
     updateSelectionUi();
