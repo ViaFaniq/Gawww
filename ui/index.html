@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GAWWW</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">&gt;_</div>
+          <div class="brand-text">
+            <h1>GAWWW<span class="cursor">█</span></h1>
+            <p>graphical awww for wayland</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div id="daemonBadge" class="status-pill checking">
+            <span class="status-dot"></span>
+            <span id="daemonStatusText">checking</span>
+          </div>
+          <button id="refreshButton" class="icon-button" type="button" title="refresh displays">↻</button>
+          <button id="daemonToggle" class="button" type="button">
+            <span id="daemonToggleText">start daemon</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="main-column">
+          <article class="card preview-card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">wallpaper</p>
+                <h2>preview</h2>
+              </div>
+              <span id="previewSourceChip" class="chip chip-muted">nothing selected</span>
+            </div>
+
+            <div id="previewStage" class="preview-stage" role="button" tabindex="0" aria-label="choose a wallpaper">
+              <span class="frame-corner tl">┌</span>
+              <span class="frame-corner tr">┐</span>
+              <span class="frame-corner bl">└</span>
+              <span class="frame-corner br">┘</span>
+
+              <div id="previewBackdrop" class="preview-backdrop"></div>
+              <img id="previewImage" class="preview-image" alt="wallpaper preview" draggable="false" hidden />
+
+              <div id="previewEmpty" class="preview-empty">
+                <div class="preview-empty-icon" aria-hidden="true">▣</div>
+                <h3 id="previewEmptyTitle">no wallpaper set</h3>
+                <p id="previewEmptyText">select an image to begin</p>
+                <div class="formats-line">formats: png jpg gif webp svg</div>
+              </div>
+
+              <div id="previewLoading" class="preview-loading" hidden>
+                <span class="spinner"></span>
+              </div>
+
+              <div id="previewInfo" class="preview-info" hidden>
+                <div class="preview-info-text">
+                  <strong id="previewName"></strong>
+                  <span id="previewPath"></span>
+                </div>
+                <div class="preview-info-badges">
+                  <span id="previewDims" class="badge"></span>
+                  <span id="previewSize" class="badge"></span>
+                </div>
+              </div>
+
+              <div id="dropOverlay" class="drop-overlay">drop image to preview</div>
+            </div>
+
+            <div class="preview-actions">
+              <div class="selected-file">
+                <span class="selected-label">selected image</span>
+                <span id="selectedPath" class="selected-path">none</span>
+              </div>
+              <div class="action-row">
+                <button id="chooseButton" class="button" type="button">
+                  <span>choose image</span>
+                </button>
+                <button id="applyButton" class="button button-primary" type="button" disabled>
+                  <span>apply wallpaper</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">outputs</p>
+                <h2>displays</h2>
+                <p id="displaysSummary" class="card-subtitle">waiting for the daemon</p>
+              </div>
+              <div class="head-actions">
+                <button id="selectAllButton" class="text-button" type="button" disabled>all</button>
+                <button id="selectNoneButton" class="text-button" type="button" disabled>none</button>
+              </div>
+            </div>
+            <div id="outputsGrid" class="outputs-grid"></div>
+            <div id="outputsEmpty" class="empty-inline">
+              <p id="outputsEmptyText">awww-daemon is not running yet</p>
+              <button id="outputsEmptyAction" class="button button-small" type="button">
+                <span>start daemon</span>
+              </button>
+            </div>
+          </article>
+
+          <article id="recentCard" class="card" hidden>
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">library</p>
+                <h2>recent</h2>
+              </div>
+              <button id="clearRecentButton" class="text-button" type="button">clear</button>
+            </div>
+            <div id="recentList" class="recent-list"></div>
+          </article>
+        </section>
+
+        <aside class="side-column">
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">animation</p>
+                <h2>transition</h2>
+              </div>
+              <span id="transitionChip" class="chip">simple</span>
+            </div>
+
+            <label class="field">
+              <span class="field-label">effect</span>
+              <span class="select-wrap">
+                <select id="transitionSelect">
+                  <optgroup label="basic">
+                    <option value="simple">simple crossfade</option>
+                    <option value="fade">bezier fade</option>
+                    <option value="none">instant switch</option>
+                  </optgroup>
+                  <optgroup label="from an edge">
+                    <option value="left">wipe from left</option>
+                    <option value="right">wipe from right</option>
+                    <option value="top">wipe from top</option>
+                    <option value="bottom">wipe from bottom</option>
+                    <option value="wipe">angled wipe</option>
+                    <option value="wave">wavy wipe</option>
+                  </optgroup>
+                  <optgroup label="shapes">
+                    <option value="grow">growing circle</option>
+                    <option value="center">from the centre</option>
+                    <option value="outer">shrinking circle</option>
+                    <option value="any">random circle</option>
+                    <option value="random">random effect</option>
+                  </optgroup>
+                </select>
+              </span>
+            </label>
+            <p id="transitionHint" class="hint">frame by frame crossfade between wallpapers</p>
+
+            <div id="durationField" class="slider-field">
+              <div class="slider-head">
+                <label for="durationRange">duration</label>
+                <output id="durationValue">3.0s</output>
+              </div>
+              <input id="durationRange" type="range" min="0.5" max="10" step="0.5" value="3" />
+            </div>
+
+            <div id="fpsField" class="slider-field">
+              <div class="slider-head">
+                <label for="fpsRange">frame rate</label>
+                <output id="fpsValue">30fps</output>
+              </div>
+              <input id="fpsRange" type="range" min="10" max="144" step="1" value="30" />
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">placement</p>
+                <h2>image fitting</h2>
+              </div>
+            </div>
+
+            <label class="field">
+              <span class="field-label">scaling</span>
+              <span class="select-wrap">
+                <select id="resizeSelect">
+                  <option value="crop">crop to fill</option>
+                  <option value="fit">fit inside</option>
+                  <option value="stretch">stretch</option>
+                  <option value="no">original size</option>
+                </select>
+              </span>
+            </label>
+
+            <label id="gravityField" class="field">
+              <span class="field-label">crop anchor</span>
+              <span class="select-wrap">
+                <select id="gravitySelect">
+                  <option value="top-left">top left</option>
+                  <option value="top">top</option>
+                  <option value="top-right">top right</option>
+                  <option value="left">left</option>
+                  <option value="center" selected>centre</option>
+                  <option value="right">right</option>
+                  <option value="bottom-left">bottom left</option>
+                  <option value="bottom">bottom</option>
+                  <option value="bottom-right">bottom right</option>
+                </select>
+              </span>
+            </label>
+
+            <label class="field">
+              <span class="field-label">scaling filter</span>
+              <span class="select-wrap">
+                <select id="filterSelect">
+                  <option value="Lanczos3">lanczos3 (best quality)</option>
+                  <option value="Mitchell">mitchell</option>
+                  <option value="CatmullRom">catmull-rom</option>
+                  <option value="Bilinear">bilinear</option>
+                  <option value="Nearest">nearest (pixel art)</option>
+                </select>
+              </span>
+            </label>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">runtime</p>
+                <h2>daemon controls</h2>
+              </div>
+            </div>
+
+            <button id="pauseButton" class="action-button" type="button">
+              <span class="action-icon" aria-hidden="true">[||]</span>
+              <span class="action-text">
+                <strong>pause animations</strong>
+                <small>freeze animated wallpapers</small>
+              </span>
+            </button>
+
+            <button id="resumeButton" class="action-button" type="button">
+              <span class="action-icon" aria-hidden="true">[ &gt; ]</span>
+              <span class="action-text">
+                <strong>resume animations</strong>
+                <small>play animated wallpapers again</small>
+              </span>
+            </button>
+
+            <button id="restoreButton" class="action-button" type="button">
+              <span class="action-icon" aria-hidden="true">[ &lt;&lt; ]</span>
+              <span class="action-text">
+                <strong>restore last wallpapers</strong>
+                <small>load the cached image per display</small>
+              </span>
+            </button>
+
+            <p id="daemonHint" class="hint">start the daemon to control wallpapers</p>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">flat fill</p>
+                <h2>solid colour</h2>
+              </div>
+            </div>
+            <div class="colour-control">
+              <label class="colour-swatch" for="fillColor">
+                <input id="fillColor" type="color" value="#0b0f17" />
+                <span id="fillColorHex">#0b0f17</span>
+              </label>
+              <button id="fillButton" class="button" type="button">
+                <span>fill displays</span>
+              </button>
+            </div>
+            <p class="hint">replaces the wallpaper with a single flat colour</p>
+          </article>
+        </aside>
+      </main>
+
+      <footer class="footer">
+        <span id="versionText">awww</span>
+        <span class="footer-dot">::</span>
+        <span>wayland layer-shell</span>
+        <span class="footer-spacer"></span>
+        <span><kbd>ctrl+o</kbd> choose</span>
+        <span><kbd>ctrl+enter</kbd> apply</span>
+      </footer>
+    </div>
+
+    <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

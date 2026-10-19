@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <pattern id="scan" width="512" height="12" patternUnits="userSpaceOnUse">
+      <rect width="512" height="1" y="1" fill="#5af78e" fill-opacity="0.06"/>
+    </pattern>
+  </defs>
+  <rect width="512" height="512" fill="#050807"/>
+  <rect width="512" height="512" fill="url(#scan)"/>
+  <rect x="18" y="18" width="476" height="476" fill="none" stroke="#2c5239" stroke-width="8"/>
+  <path d="M148 148 L292 256 L148 364" fill="none" stroke="#5af78e" stroke-width="44" stroke-linejoin="miter"/>
+  <rect x="332" y="324" width="122" height="40" fill="#5af78e"/>
+</svg>
