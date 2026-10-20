@@ -13,8 +13,22 @@ GAWWW (graphical awww) is a graphical wallpaper manager for Linux Wayland deskto
 - Solid colour fill and restore of the last cached wallpaper
 - Pause and resume animated wallpapers
 - Recent files list
-- Terminal styled interface (monospace, phosphor palette, keyboard shortcuts)
+- Seven interface themes: **GameHub** (default), plus **Classic**, **Aurora**, **Ember**, **Nord**, **Sakura** and **Daylight**
 - Self-contained frontend (no Node.js or bundler required)
+
+## Themes
+
+The interface ships with seven themes:
+
+- **GameHub** — the default theme: dark blue, rounded panels, Inter font stack and blue accents.
+- **Classic** — the original terminal-style theme with JetBrains Mono, a green phosphor palette and scanlines.
+- **Aurora** — violet accents on a dark indigo base with soft, large radii.
+- **Ember** — warm orange accents on a dark brown base with sharp corners.
+- **Nord** — the arctic Nord palette with cyan accents and cool greys.
+- **Sakura** — pink accents on a dark plum base with soft, large radii.
+- **Daylight** — a light theme with a clean white surface and blue accents.
+
+Use the palette button in the top bar to switch themes. The choice is saved in `localStorage` under `gawww.theme.v1`, so the app opens with the last selected theme. The legacy `phosphor` value is migrated to `classic` automatically.
 
 ## Requirements
 
@@ -70,6 +84,8 @@ The AppImage normally executes with FUSE (`libfuse2`). On systems without it, ru
 
 The daemon controls card offers pause, resume and restore. The header button starts or stops `awww-daemon`. The daemon log is written to `$XDG_CACHE_HOME/gawww/daemon.log` (usually `~/.cache/gawww/daemon.log`).
 
+Use the palette button in the top bar to switch between the seven themes at any time.
+
 ## Project layout
 
 ```
@@ -79,9 +95,9 @@ src-tauri/
   src/lib.rs       Tauri commands and app setup
   tauri.conf.json  window, bundle and security configuration
 ui/
-  index.html       application shell
-  styles.css       terminal styled theme
-  main.js          UI state and Tauri command calls
+  index.html       application shell and theme switcher
+  styles.css       Classic base styles, shared modern skin and per-theme palettes
+  main.js          UI state, theme persistence and Tauri command calls
 ```
 
 ## Notes

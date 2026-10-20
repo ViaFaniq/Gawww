@@ -1,9 +1,27 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="gamehub" data-skin="modern">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d1016" />
     <title>GAWWW</title>
+    <script>
+      (() => {
+        try {
+          const themes = ["gamehub", "classic", "aurora", "ember", "nord", "sakura", "daylight"];
+          const aliases = { phosphor: "classic" };
+          const stored = localStorage.getItem("gawww.theme.v1");
+          const theme = aliases[stored] || (themes.includes(stored) ? stored : "gamehub");
+          if (stored !== null && stored !== theme) {
+            localStorage.setItem("gawww.theme.v1", theme);
+          }
+          const root = document.documentElement;
+          root.dataset.theme = theme;
+          if (theme !== "classic") root.dataset.skin = "modern";
+          else delete root.dataset.skin;
+        } catch (error) {}
+      })();
+    </script>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -20,6 +38,85 @@
           <div id="daemonBadge" class="status-pill checking">
             <span class="status-dot"></span>
             <span id="daemonStatusText">checking</span>
+          </div>
+          <div class="theme-switch" id="themeSwitch">
+            <button
+              id="themeButton"
+              class="button button-small theme-button"
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="themeMenu"
+              title="Change interface theme"
+            >
+              <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 3a9 9 0 0 0 0 18c1.5 0 2.2-1 2.2-2 0-1.1-.8-1.8-.8-2.7 0-.8.7-1.3 1.6-1.3h1.6A4.4 4.4 0 0 0 21 12a9 9 0 0 0-9-9z"/>
+                <circle cx="7.5" cy="11" r="1"/>
+                <circle cx="10" cy="7.5" r="1"/>
+                <circle cx="14.5" cy="7.5" r="1"/>
+              </svg>
+              <span id="themeButtonLabel">GameHub</span>
+              <span class="theme-caret" aria-hidden="true">▾</span>
+            </button>
+            <div id="themeMenu" class="theme-menu" role="listbox" aria-label="Interface theme" hidden>
+              <button type="button" class="theme-option" role="option" data-theme="gamehub" aria-selected="true">
+                <span class="theme-swatch theme-swatch-gamehub" aria-hidden="true"></span>
+                <span class="theme-option-text">
+                  <strong>GameHub</strong>
+                  <small>dark blue · rounded</small>
+                </span>
+                <span class="theme-check" aria-hidden="true">✓</span>
+              </button>
+              <button type="button" class="theme-option" role="option" data-theme="aurora" aria-selected="false">
+                <span class="theme-swatch theme-swatch-aurora" aria-hidden="true"></span>
+                <span class="theme-option-text">
+                  <strong>Aurora</strong>
+                  <small>violet · soft glow</small>
+                </span>
+                <span class="theme-check" aria-hidden="true">✓</span>
+              </button>
+              <button type="button" class="theme-option" role="option" data-theme="ember" aria-selected="false">
+                <span class="theme-swatch theme-swatch-ember" aria-hidden="true"></span>
+                <span class="theme-option-text">
+                  <strong>Ember</strong>
+                  <small>warm orange · sharp</small>
+                </span>
+                <span class="theme-check" aria-hidden="true">✓</span>
+              </button>
+              <button type="button" class="theme-option" role="option" data-theme="nord" aria-selected="false">
+                <span class="theme-swatch theme-swatch-nord" aria-hidden="true"></span>
+                <span class="theme-option-text">
+                  <strong>Nord</strong>
+                  <small>arctic cyan · cool</small>
+                </span>
+                <span class="theme-check" aria-hidden="true">✓</span>
+              </button>
+              <button type="button" class="theme-option" role="option" data-theme="sakura" aria-selected="false">
+                <span class="theme-swatch theme-swatch-sakura" aria-hidden="true"></span>
+                <span class="theme-option-text">
+                  <strong>Sakura</strong>
+                  <small>pink · soft</small>
+                </span>
+                <span class="theme-check" aria-hidden="true">✓</span>
+              </button>
+              <button type="button" class="theme-option" role="option" data-theme="daylight" aria-selected="false">
+                <span class="theme-swatch theme-swatch-daylight" aria-hidden="true"></span>
+                <span class="theme-option-text">
+                  <strong>Daylight</strong>
+                  <small>light · clean</small>
+                </span>
+                <span class="theme-check" aria-hidden="true">✓</span>
+              </button>
+              <button type="button" class="theme-option" role="option" data-theme="classic" aria-selected="false">
+                <span class="theme-swatch theme-swatch-classic" aria-hidden="true"></span>
+                <span class="theme-option-text">
+                  <strong>Classic</strong>
+                  <small>terminal green · mono</small>
+                </span>
+                <span class="theme-check" aria-hidden="true">✓</span>
+              </button>
+            </div>
           </div>
           <button id="refreshButton" class="icon-button" type="button" title="refresh displays">↻</button>
           <button id="daemonToggle" class="button" type="button">

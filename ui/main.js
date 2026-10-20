@@ -12,6 +12,11 @@
   const daemonToggleText = $("daemonToggleText");
   const versionText = $("versionText");
 
+  const themeSwitch = $("themeSwitch");
+  const themeButton = $("themeButton");
+  const themeButtonLabel = $("themeButtonLabel");
+  const themeMenu = $("themeMenu");
+
   const previewStage = $("previewStage");
   const previewBackdrop = $("previewBackdrop");
   const previewImage = $("previewImage");
@@ -146,6 +151,29 @@
     settings: "gawww.settings.v1",
     recent: "gawww.recent.v1",
     selected: "gawww.selected.v1",
+    theme: "gawww.theme.v1",
+  };
+
+  const DEFAULT_THEME = "gamehub";
+  const THEMES = new Set(["gamehub", "classic", "aurora", "ember", "nord", "sakura", "daylight"]);
+  const THEME_ALIASES = { phosphor: "classic" };
+  const THEME_LABELS = {
+    gamehub: "GameHub",
+    classic: "Classic",
+    aurora: "Aurora",
+    ember: "Ember",
+    nord: "Nord",
+    sakura: "Sakura",
+    daylight: "Daylight",
+  };
+  const THEME_COLORS = {
+    gamehub: "#0d1016",
+    classic: "#050807",
+    aurora: "#0b0a12",
+    ember: "#120d0b",
+    nord: "#242933",
+    sakura: "#140d14",
+    daylight: "#f4f6fb",
   };
 
   const TOAST_PREFIXES = {
@@ -243,6 +271,111 @@
         localStorage.removeItem(STORAGE_KEYS.selected);
       }
     } catch (error) {}
+  }
+
+  function normalizeTheme(theme) {
+    const resolved = THEME_ALIASES[theme] || theme;
+    return THEMES.has(resolved) ? resolved : DEFAULT_THEME;
+  }
+
+  function currentTheme() {
+    return normalizeTheme(document.documentElement.dataset.theme);
+  }
+
+  function closeThemeMenu() {
+    themeMenu.hidden = true;
+    themeButton.classList.remove("is-open");
+    themeButton.setAttribute("aria-expanded", "false");
+  }
+
+  function openThemeMenu() {
+    themeMenu.hidden = false;
+    themeButton.classList.add("is-open");
+    themeButton.setAttribute("aria-expanded", "true");
+    const selected = themeMenu.querySelector(".theme-option.is-selected") || themeMenu.querySelector(".theme-option");
+    selected?.focus();
+  }
+
+  function applyTheme(theme, { persist = true, announce = false } = {}) {
+    const next = normalizeTheme(theme);
+
+    document.documentElement.dataset.theme = next;
+    if (next === "classic") {
+      delete document.documentElement.dataset.skin;
+    } else {
+      document.documentElement.dataset.skin = "modern";
+    }
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", THEME_COLORS[next]);
+    themeButtonLabel.textContent = THEME_LABELS[next];
+    themeButton.setAttribute("aria-label", `Interface theme: ${THEME_LABELS[next]}. Change theme`);
+    themeButton.setAttribute("aria-expanded", String(!themeMenu.hidden));
+
+    for (const option of themeMenu.querySelectorAll(".theme-option")) {
+      const selected = option.dataset.theme === next;
+      option.classList.toggle("is-selected", selected);
+      option.setAttribute("aria-selected", String(selected));
+    }
+
+    if (persist) {
+      try {
+        localStorage.setItem(STORAGE_KEYS.theme, next);
+      } catch (error) {}
+    }
+
+    if (announce) showToast(`theme: ${THEME_LABELS[next].toLowerCase()}`, "info", 2400);
+  }
+
+  function bindThemeSwitcher() {
+    applyTheme(currentTheme(), { persist: false });
+
+    themeButton.addEventListener("click", () => {
+      if (themeMenu.hidden) openThemeMenu();
+      else closeThemeMenu();
+    });
+
+    themeButton.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        openThemeMenu();
+      } else if (event.key === "Escape") {
+        closeThemeMenu();
+      }
+    });
+
+    themeMenu.addEventListener("keydown", (event) => {
+      const items = Array.from(themeMenu.querySelectorAll(".theme-option"));
+      const index = items.indexOf(document.activeElement);
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeThemeMenu();
+        themeButton.focus();
+      } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        const step = event.key === "ArrowDown" ? 1 : -1;
+        items[(index + step + items.length) % items.length]?.focus();
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        items[0]?.focus();
+      } else if (event.key === "End") {
+        event.preventDefault();
+        items[items.length - 1]?.focus();
+      } else if (event.key === "Tab") {
+        closeThemeMenu();
+      }
+    });
+
+    for (const option of themeMenu.querySelectorAll(".theme-option")) {
+      option.addEventListener("click", () => {
+        applyTheme(option.dataset.theme, { announce: true });
+        closeThemeMenu();
+        themeButton.focus();
+      });
+    }
+
+    document.addEventListener("click", (event) => {
+      if (!themeSwitch.contains(event.target)) closeThemeMenu();
+    });
   }
 
   function clamp(value, min, max) {
@@ -1091,6 +1224,7 @@
     }
 
     bindEvents();
+    bindThemeSwitcher();
     enhanceSelects();
     applySettingsToUi();
     renderRecent();
